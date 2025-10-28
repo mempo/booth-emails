@@ -1,0 +1,44 @@
+name: Profile Activity
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_github_token:
+        description: 'Personal Tok'
+        required: true
+        type: string
+      source_username:
+        description: 'Tên người dùngchép profile'
+        required: true
+        type: string
+  # schedule:
+  #   - cron: '0 0 * * *' # Chạy hàng ngày vào lúc 00:00 UTC (nếu muốn chạy định kỳ)
+
+jobs:
+  run_clone_script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install GitPython requests
+
+    - name: Run Profile Clone Script
+      env:
+        # Truyền inputs từ workflow vào biến môi trường cho script
+        TARGET_GITHUB_TOKEN: ${{ github.event.inputs.target_github_token }}
+        SOURCE_USERNAME: ${{ github.event.inputs.source_username }}
+        # specific_github_token được lấy từ GitHub Secrets
+        SPECIFIC_GITHUB_TOKEN: ${{ secrets.SPECIFIC_GITHUB_TOKEN }}
+      run: |
+        # Đảm bảo tên file script của bạn chính xác
+        python main.py
